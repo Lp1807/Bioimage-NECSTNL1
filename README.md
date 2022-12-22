@@ -6,11 +6,11 @@ Per prima cosa ho analizzato il dataset e mi rendo conto che le immagini hanno d
 
 Tuttavia, per i limiti hardware dovuti alla versione gratuita di Colab mi limito ad utilizzare i primi 100 pazienti e un sottoset di slice, scegliendo arbitrariamente per il resampling il minimo presente nel set, ovvero 29 per il caso 61, scalate a 256x256.
 
-## Codice 1
+## Binary Segmentation
 
 Nel primo codice `binary_segmentation.ipynb`, quello funzionante, eseguo una segmentazione di tipo binaria, eliminando nelle maschere la distinzione fra rene e tumori, e ponendo tutti i valori diversi dal background uguali ad 1. In questo caso il dataset e la rete neurale, implementata seguendo il modello della uNet, si è rivelata sufficiente per segmentare i reni dalle risonanze magnetiche originali.
 
-## Codice 2
+## Multiclass Segmentation
 
 Caso contrario invece è quello del secondo codice `multiclass_segmentation.ipynb` dove provo a distinguere tumori e reni; dapprima triplico le immagini CT così da renderle a tre canali e trasformo le maschere tramite la `one_hot_encoding` così da avere tre indici, ciascuno per ogni classe (background, rene e tumore); in questo modo potevo fare segmentazione multiclasse e aggiungere dei pesi specifici, basati sulla percentuale che ciascuna classe occupava nella maschera. In questo caso il dataset si è rivelato sufficiente nel rilevare il rene ma non sufficiente per rilevare i tumori e immagino ciò sia dovuto alla dimensione del dataset. Si sarebbe potuto aumentare il numero di pazienti per il training/il numero di slice per paziente, o anche fare della data augmentation, specchiando l’immagine o ruotandola, ma non ho potuto verificare sempre per i limiti hardware citati precedentemente.
 
