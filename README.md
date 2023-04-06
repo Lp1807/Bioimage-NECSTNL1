@@ -1,25 +1,20 @@
 # Bioimage-NECSTNL1
+## Description
 
-## Prima analisi
+This project was the end assigment for the "Biomedical Computer Vision Course" at NecstCamp. It is based on the [Kits19 Challenge](https://github.com/neheller/kits19)
 
-Per prima cosa ho analizzato il dataset e mi rendo conto che le immagini hanno dimensione 512x512, ad eccezione del paziente 160, numero di *slice* dei pazienti non è uniforme. Il dataset ha a disposizione solo la ************maschera************ per i primi 209 pazienti che idealmente costituirebbero il quantitativo di dati necessario per training e validation, con i restanti casi dedicati al testing. 
+## First analysis
 
-Tuttavia, per i limiti hardware dovuti alla versione gratuita di Colab mi limito ad utilizzare i primi 100 pazienti e un sottoset di slice, scegliendo arbitrariamente per il resampling il minimo presente nel set, ovvero 29 per il caso 61, scalate a 256x256.
+I first analysed the dataset and realised that the images are 512x512 in size, with the exception of patient 160, and that the number of patient *slices* is not uniform. The masks were available for the first 209 patients, which would ideally constitute the amount of data needed for training and validation, with the remaining cases dedicated to testing. 
+
+However, due to hardware limitations of the free version of Colab, I limited myself to only using the first 100 patients and a subset of slices, arbitrarily choosing for resampling the minimum present in the set, i.e. 29 for case 61, scaled to 256x256.
 
 ## Binary Segmentation
 
-Nel primo codice `binary_segmentation.ipynb`, quello funzionante, eseguo una segmentazione di tipo binaria, eliminando nelle maschere la distinzione fra rene e tumori, e ponendo tutti i valori diversi dal background uguali ad 1. In questo caso il dataset e la rete neurale, implementata seguendo il modello della uNet, si è rivelata sufficiente per segmentare i reni dalle risonanze magnetiche originali.
+In the first code `binary_segmentation.ipynb`, I perform a binary segmentation, removing the distinction between kidney and tumour in the masks, by setting all values other than background equal to 1. In this case the dataset and the neural network, implemented following the [uNet](https://arxiv.org/abs/1505.04597) model, proved to be sufficient to segment the kidneys from the original CTs.
 
 ## Multiclass Segmentation
 
-Caso contrario invece è quello del secondo codice `multiclass_segmentation.ipynb` dove provo a distinguere tumori e reni; dapprima triplico le immagini CT così da renderle a tre canali e trasformo le maschere tramite la `one_hot_encoding` così da avere tre indici, ciascuno per ogni classe (background, rene e tumore); in questo modo potevo fare segmentazione multiclasse e aggiungere dei pesi specifici, basati sulla percentuale che ciascuna classe occupava nella maschera. In questo caso il dataset si è rivelato sufficiente nel rilevare il rene ma non sufficiente per rilevare i tumori e immagino ciò sia dovuto alla dimensione del dataset. Si sarebbe potuto aumentare il numero di pazienti per il training/il numero di slice per paziente, o anche fare della data augmentation, specchiando l’immagine o ruotandola, ma non ho potuto verificare sempre per i limiti hardware citati precedentemente.
+In the second notebook `multiclass_segmentation.ipynb` I try to segment tumours and kidneys. Firstly, I modified the CT images, so that they have three channels, and, secondly, transformed the masks using `one_hot_encoding` to have three indexes, each for each class (background, kidney and tumour); in this way I could do multiclass segmentation and add specific weights, based on the percentage each class occupied in the mask. In this case, the dataset proved to be sufficient in detecting kidney but insufficient in detecting tumours due to the size of the dataset. A solution to this could be increasing the number of patients for training/the number of slices per patient, or even doing some data augmentation, by mirroring the image or rotating it, but I wasn't able to test it due to the hardware limitations mentioned above.
 
-Mi rendo conto che si poteva risolvere il problema della RAM limitata implementano a mano un iteratore, dato che quello di libreria non supporta il formato `.nii`, seguendo la seguente guida [https://medium.com/analytics-vidhya/write-your-own-custom-data-generator-for-tensorflow-keras-1252b64e41c3](https://medium.com/analytics-vidhya/write-your-own-custom-data-generator-for-tensorflow-keras-1252b64e41c3), così da caricare volta per volta le immagini, e sfruttare l’ImageDataGenerator di Keras eppure, nonostante i miei tentativi, le mie conoscenze pregresse non hanno permesso la sua realizzazione. Una soluzione un po’ più grezza poteva essere quella di convertire gli array numpy in una serie di immagini .jpeg e sfruttare il generatore di libreria ma non ci ho neanche provato sembrandomi una soluzione poco intelligente.
-
-In questa soluzione utilizzo come rete neurale la `efficientnetb3` della libreria `segmentation_model` con la quale riesco ad arrivare ad una loss del 4% circa, sotto la quale anche aumentando le 'epochs' non riesco a scendere
-
-### Riferimenti
-[https://www.kaggle.com/code/shakshyathedetector/image-segmentation-using-u-net](https://www.kaggle.com/code/shakshyathedetector/image-segmentation-using-u-net)
-https://github.com/qubvel/segmentation_models
-https://github.com/qubvel/segmentation_models/blob/master/examples/multiclass%20segmentation%20(camvid).ipynb
-https://github.com/neheller/kits19
+In this solution, I use the [`efficientnetb3`](https://arxiv.org/pdf/1905.11946.pdf) from the [segmentation_model](https://segmentation-models.readthedocs.io/en/latest/) library for the neural network.
